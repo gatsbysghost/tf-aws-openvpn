@@ -14,7 +14,7 @@ variable openvpn_ami {
 
 variable openvpn_instance_size {
   default = "t2.medium"
-  type = "string"
+  type    = "string"
 }
 
 variable openvpn_key_name {
@@ -22,7 +22,8 @@ variable openvpn_key_name {
 }
 
 variable openvpn_subnet_id {
-  type = "string"
+  description = "List of subnet IDs"
+  type = "list"
 }
 
 variable openvpn_route53_public_zone_id {
@@ -54,7 +55,7 @@ variable openvpn_public_hostname {
 # admin_user (default=openvpn)
 # -- Access Server administrative account name.
 variable openvpn_admin_user {
-  type = "string"
+  type    = "string"
   default = "openvpn"
 }
 
@@ -70,7 +71,7 @@ variable openvpn_admin_pswd {
 #-- Access Server license key (without a license key, the Access Server will
 # support up to 2 concurrent connections).
 variable openvpn_license {
-  type = "string"
+  type    = "string"
   default = ""
 }
 
@@ -92,7 +93,7 @@ variable openvpn_reroute_dns {
 
 # List of additional security group ID's to add to EC2 instance
 variable custom_security_groups {
-  type = "list"
+  type    = "list"
   default = []
 }
 
@@ -112,6 +113,7 @@ variable openvpn_ssh_access {
 # (e.g. Public Network, Office Network CIDR_BLOCK)
 variable openvpn_https_access {
   type = "list"
+
   default = [
     "0.0.0.0/0",
   ]
@@ -121,6 +123,7 @@ variable openvpn_https_access {
 # (e.g. Public Network CIDR_BLOCK)
 variable openvpn_admin_access {
   type = "list"
+
   default = [
     "0.0.0.0/0",
   ]
@@ -130,6 +133,7 @@ variable openvpn_admin_access {
 # (e.g. Public Network)
 variable openvpn_udp_access {
   type = "list"
+
   default = [
     "0.0.0.0/0",
   ]
@@ -160,8 +164,9 @@ variable openvpn_ldap_base_dn {
 }
 
 variable openvpn_ldap_uname_attr {
-  type = "string"
+  type    = "string"
   default = "uid"
+
   # sAMAccountName for Active Directory
   # uid for OpenLDAP
 }
@@ -171,17 +176,16 @@ variable openvpn_ldap_add_req {
 }
 
 variable openvpn_ldap_use_ssl {
-  type = "string"
+  type    = "string"
   default = "always"
-
 }
 
 ###############################################################################
 ### USE PREALLOCATED FIXED ELASTIC IP
 ###############################################################################
 variable public_ip {
-  default = ""
-  type = "string"
+  default     = ""
+  type        = "string"
   description = "To use preallocated static IP address, please set variable to existing EIP. If it's empty, it will be created dynamically."
 }
 
@@ -189,8 +193,7 @@ variable public_ip {
 ### GOOGLE AUTHENTICATOR CONFIGURATION
 ###############################################################################
 variable use_google_auth {
-  default = "0"
-  type = "string"
+  default     = "0"
+  type        = "string"
   description = "Use Google Authenticator for 2FA"
 }
-

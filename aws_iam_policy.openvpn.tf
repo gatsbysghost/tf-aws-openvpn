@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "openvpn" {
       ]
 
       resources = ["*"]
-    }
+    },
   ]
 }
 
@@ -25,7 +25,6 @@ resource "aws_iam_policy" "openvpn" {
   path   = "/"
   policy = "${data.aws_iam_policy_document.openvpn.json}"
 }
-
 
 # ATTACH IAM POLICY
 resource "aws_iam_role_policy_attachment" "attach_openvpn_policy_to_openvpn_role" {
