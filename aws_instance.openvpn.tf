@@ -17,7 +17,7 @@ resource "aws_launch_template" "openvpn" {
   instance_type = var.openvpn_instance_size
   key_name      = var.openvpn_key_name
 
-  //  subnet_id            = "${var.openvpn_subnet_id}"
+  //  subnet_id            = var.openvpn_subnet_id
   iam_instance_profile {
     name = aws_iam_instance_profile.openvpn.name
   }
@@ -96,7 +96,7 @@ resource "aws_lb_listener" "lb_https" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-FS-2018-06"
 
-  //  certificate_arn   = "${var.certificate_arn}" // TODO
+  //  certificate_arn   = var.certificate_arn // TODO
 
   default_action {
     type             = "forward"
