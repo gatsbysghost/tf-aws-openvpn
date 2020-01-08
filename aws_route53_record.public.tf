@@ -7,4 +7,3 @@
 //  ttl     = "300"
 //  records = ["${local.public_ip}"]
 //}
-
