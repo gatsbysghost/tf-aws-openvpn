@@ -13,14 +13,14 @@ This stack provisions an OpenVPN Access Server in the ${upper(terraform.workspac
 ## CONFIGURATION
 
 |ATTRIBUTE|VALUE|
-|Instance ID|${aws_instance.openvpn.id}|
-|Instance Size|${var.openvpn_instance_size}|
-|Availability Zone|${aws_instance.openvpn.availability_zone}|
-|Subnet ID|${aws_instance.openvpn.subnet_id}|
-|Private DNS|${aws_instance.openvpn.private_dns}|
-|Private IP|${aws_instance.openvpn.private_ip}|
-|Public DNS|${var.openvpn_public_dns}|
-|Public IP|${local.public_ip}|
+|Instance ID|$${aws_instance.openvpn.id}|
+|Instance Size|$${var.openvpn_instance_size}|
+|Availability Zone|$${aws_instance.openvpn.availability_zone}|
+|Subnet ID|$${aws_instance.openvpn.subnet_id}|
+|Private DNS|$${aws_instance.openvpn.private_dns}|
+|Private IP|$${aws_instance.openvpn.private_ip}|
+|Public DNS|$${var.openvpn_public_dns}|
+|Public IP|$${local.public_ip}|
 
 
 ### USER DATA
@@ -126,9 +126,11 @@ which is provided by a custom security group.
 |ALLOW|ALL|ALL|0.0.0.0/0|Allow ALL (tcp/udp) access to these networks.|
 
 EOF
+
 }
 
 resource "local_file" "readme" {
-  content  = "${data.template_file.readme.rendered}"
+  content  = data.template_file.readme.rendered
   filename = "${path.root}/README.${upper(terraform.workspace)}.md"
 }
+
