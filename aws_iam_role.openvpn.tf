@@ -16,12 +16,10 @@ resource "aws_iam_role" "openvpn" {
   ]
 }
 EOF
-
 }
 
 # IAM Instance Profile for OpenVPN
 resource "aws_iam_instance_profile" "openvpn" {
   name = "${terraform.workspace}-openvpn"
-  role = aws_iam_role.openvpn.name
+  role = "${aws_iam_role.openvpn.name}"
 }
-

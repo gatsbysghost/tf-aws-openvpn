@@ -7,3 +7,4 @@
 //  ttl     = "300"
 //  records = ["${aws_instance.openvpn.private_ip}"]
 //}
+
