@@ -126,9 +126,11 @@ which is provided by a custom security group.
 |ALLOW|ALL|ALL|0.0.0.0/0|Allow ALL (tcp/udp) access to these networks.|
 
 EOF
+
 }
 
 resource "local_file" "readme" {
-  content  = "${data.template_file.readme.rendered}"
+  content  = data.template_file.readme.rendered
   filename = "${path.root}/README.${upper(terraform.workspace)}.md"
 }
+
