@@ -1,3 +1,13 @@
+# SECRETS
+
+variable "foxpass_password" {
+  description = "Binder password for Foxpass LDAP"
+}
+
+variable "ovpn_as_password" {
+  description = "Admin password for OpenVPN Access Server"
+}
+
 # NETWORK VARIABLES
 variable "network_vpc_id" {
   type = string
