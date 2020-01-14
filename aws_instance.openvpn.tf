@@ -75,7 +75,7 @@ locals {
 }
 
 resource "aws_acm_certificate" "ovpn_aws_cert" {
-  domain_name       = "atsint.net"
+  domain_name       = var.cert_domain_name
   validation_method = "DNS"
 
   lifecycle {

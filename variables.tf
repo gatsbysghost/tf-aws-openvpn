@@ -16,6 +16,11 @@ variable "network_vpc_id" {
 }
 
 # OPENVPN INSTANCE VARIABLES
+variable "cert_domain_name" {
+  description = "Domain name used to instantiate TLS Certificate"
+  type = string
+}
+
 variable "stack_name" {
   default = "openvpn"
 }
