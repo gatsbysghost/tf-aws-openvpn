@@ -51,13 +51,6 @@ variable "openvpn_public_dns" {
   type = string
 }
 
-variable "openvpn_route53_private_zone_id" {
-  type = string
-}
-
-variable "openvpn_private_dns" {
-  type = string
-}
 
 ###############################################################################
 ### OPENVPN USER DATA
