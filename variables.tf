@@ -33,7 +33,7 @@ variable "openvpn_key_name" {
   type = string
 }
 
-variable "openvpn_subnet_id" {
+variable "openvpn_subnet_ids" {
   description = "List of subnet IDs"
   type        = list(string)
 }

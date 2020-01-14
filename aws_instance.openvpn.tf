@@ -1,11 +1,18 @@
 # CREATE OPENVPN ACCESS SERVER INSTANCE
 
 resource "aws_launch_template" "openvpn" {
-  image_id      = var.openvpn_ami
-  instance_type = var.openvpn_instance_size
-  key_name      = var.openvpn_key_name
+  image_id           = var.openvpn_ami
+  instance_type      = var.openvpn_instance_size
+  key_name           = var.openvpn_key_name
 
-  //  subnet_id            = var.openvpn_subnet_id
+  dynamic "network_interfaces" {
+    for_each = var.openvpn_subnet_ids
+
+    content {
+      subnet_id = network_interfaces.value
+    }
+  }
+
   iam_instance_profile {
     name = aws_iam_instance_profile.openvpn.name
   }
@@ -29,7 +36,7 @@ resource "aws_autoscaling_group" "openvpn" {
   max_size = 1
   min_size = 1
 
-  vpc_zone_identifier = var.openvpn_subnet_id
+  vpc_zone_identifier = var.openvpn_subnet_ids
 
   launch_template {
     id = aws_launch_template.openvpn.id
@@ -67,10 +74,20 @@ locals {
   }
 }
 
+resource "aws_acm_certificate" "ovpn_aws_cert" {
+  domain_name       = "atsint.net"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
 resource "aws_lb" "lb" {
   name                   = var.stack_name
   load_balancer_type     = "network"
-  subnets                = var.openvpn_subnet_id
+  subnets                = var.openvpn_subnet_ids
   security_groups        = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
   tags                   = local.default_tags
 }
@@ -81,7 +98,7 @@ resource "aws_lb_listener" "lb_https" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-FS-2018-06"
 
-  //  certificate_arn   = var.certificate_arn // TODO
+  certificate_arn   = aws_acm_certificate.ovpn_aws_cert.arn // WIP
 
   default_action {
     type             = "forward"
