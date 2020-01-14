@@ -1,3 +1,5 @@
+variable "environment" {}
+
 # SECRETS
 
 variable "foxpass_password" {
