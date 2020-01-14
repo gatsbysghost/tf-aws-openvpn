@@ -12,10 +12,7 @@ resource "aws_launch_template" "openvpn" {
 
   user_data = data.template_file.user_data.rendered
 
-  vpc_security_group_ids = [
-    aws_security_group.openvpn.id,
-    var.custom_security_groups,
-  ]
+  vpc_security_group_ids = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
 
   lifecycle {
     create_before_destroy = true
@@ -71,11 +68,11 @@ locals {
 }
 
 resource "aws_lb" "lb" {
-  name               = var.stack_name
-  load_balancer_type = "network"
-  subnets            = var.openvpn_subnet_id
-  security_groups    = [aws_security_group.openvpn.id, var.custom_security_groups]
-  tags               = local.default_tags
+  name                   = var.stack_name
+  load_balancer_type     = "network"
+  subnets                = var.openvpn_subnet_id
+  security_groups        = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
+  tags                   = local.default_tags
 }
 
 resource "aws_lb_listener" "lb_https" {
@@ -141,13 +138,13 @@ resource "aws_route53_record" "lb" {
 resource "aws_lb_target_group" "tg" {
   name     = "${var.stack_name}-tg"
   port     = "80"
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id   = var.network_vpc_id
   tags     = local.default_tags
 
   health_check {
     path                = "/"
-    protocol            = "TCP"
+    protocol            = "HTTP"
     healthy_threshold   = "2"
     unhealthy_threshold = "3"
     timeout             = "5"
