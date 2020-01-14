@@ -1,19 +1,7 @@
 # CREATE OPENVPN ACCESS SERVER INSTANCE
 
-data "aws_ami" "openvpnas" {
-  most_recent = true
-  name_regex  = "OpenVPN Access Server \\d\\.\\d\\.\\d-fe8020db-5343-4c43-9e65-5ed4a825c931*"
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["679593333241"] # OpenVPN Inc
-}
-
 resource "aws_launch_template" "openvpn" {
-  image_id      = data.aws_ami.openvpnas.id
+  image_id      = var.openvpn_ami
   instance_type = var.openvpn_instance_size
   key_name      = var.openvpn_key_name
 
