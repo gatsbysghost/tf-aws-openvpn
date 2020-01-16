@@ -88,7 +88,6 @@ resource "aws_lb" "lb" {
   name                   = var.stack_name
   load_balancer_type     = "network"
   subnets                = var.openvpn_subnet_ids
-  security_groups        = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
   tags                   = local.default_tags
 }
 
@@ -171,7 +170,7 @@ resource "aws_lb_target_group" "tg" {
 }
 
 resource "aws_lb_target_group" "openvpn-1194" {
-  name     = "${var.stack_name}-ovpn-tg"
+  name     = "${var.stack_name}-ovpn-tg-1194"
   port     = "1194"
   protocol = "UDP"
   vpc_id   = var.network_vpc_id
@@ -179,7 +178,7 @@ resource "aws_lb_target_group" "openvpn-1194" {
 }
 
 resource "aws_lb_target_group" "openvpn-943" {
-  name     = "${var.stack_name}-ovpn-tg"
+  name     = "${var.stack_name}-ovpn-tg-943"
   port     = "943"
   protocol = "TCP"
   vpc_id   = var.network_vpc_id
