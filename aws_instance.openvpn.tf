@@ -1,46 +1,46 @@
 # CREATE OPENVPN ACCESS SERVER INSTANCE
 
-resource "aws_launch_template" "openvpn" {
+resource "aws_launch_configuration" "openvpn" {
   image_id           = var.openvpn_ami
   instance_type      = var.openvpn_instance_size
   key_name           = var.openvpn_key_name
 
-  dynamic "network_interfaces" {
-    for_each = var.openvpn_subnet_ids
-
-    content {
-      subnet_id = network_interfaces.value
-    }
-  }
-
-  iam_instance_profile {
-    name = aws_iam_instance_profile.openvpn.name
-  }
+  iam_instance_profile = aws_iam_instance_profile.openvpn.name
 
   user_data = data.template_file.user_data.rendered
 
-  vpc_security_group_ids = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
+  security_groups = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
+
+  associate_public_ip_address = false
 
   lifecycle {
     create_before_destroy = true
   }
-
-  tags = {
-    Name        = "OpenVPN Access Server"
-    Environment = lower(terraform.workspace)
-    Stack       = lower(var.stack_name)
-  }
 }
 
 resource "aws_autoscaling_group" "openvpn" {
-  max_size = 1
-  min_size = 1
+  max_size             = 1
+  min_size             = 1
+  vpc_zone_identifier  = var.openvpn_subnet_ids
+  launch_configuration = aws_launch_configuration.openvpn.name
+  health_check_type    = "EC2"
+  target_group_arns    = [aws_lb_target_group.tg-443.arn, aws_lb_target_group.tg-943.arn, aws_lb_target_group.tg-1194.arn]
 
-  vpc_zone_identifier = var.openvpn_subnet_ids
-
-  launch_template {
-    id = aws_launch_template.openvpn.id
-  }
+  tags = [{
+    key   = "Name",
+    value = "OpenVPN Access Server",
+    propagate_at_launch = true
+  },
+  {
+    key   = "Environment",
+    value = lower(terraform.workspace),
+    propagate_at_launch = true
+  },
+  {
+    key   = "Stack",
+    value = lower(var.stack_name),
+    propagate_at_launch = true
+  }]
 }
 
 # USER DATA TEMPLATE TO PRE-CONFIGURE THE OPENVPN ACCESS SERVER
@@ -91,44 +91,28 @@ resource "aws_lb" "lb" {
   tags                   = local.default_tags
 }
 
-resource "aws_lb_listener" "lb_https" {
+resource "aws_lb_listener" "openvpn-443" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "443"
-  protocol          = "HTTPS"
+  protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-FS-2018-06"
 
   certificate_arn   = aws_acm_certificate.ovpn_aws_cert.arn // WIP
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
+    target_group_arn = aws_lb_target_group.tg-443.arn
   }
 }
 
-resource "aws_lb_listener" "lb_http" {
-  load_balancer_arn = aws_lb.lb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener" "openvpn" {
+resource "aws_lb_listener" "openvpn-1194" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "1194"
   protocol          = "UDP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.openvpn-1194.arn
+    target_group_arn = aws_lb_target_group.tg-1194.arn
   }
 }
 
@@ -139,49 +123,40 @@ resource "aws_lb_listener" "openvpn-943" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.openvpn-943.arn
+    target_group_arn = aws_lb_target_group.tg-943.arn
   }
 }
 
-resource "aws_route53_record" "lb" {
-  zone_id = var.openvpn_route53_public_zone_id
-  name    = var.openvpn_public_dns
-  type    = "CNAME"
-  ttl     = "30"
-  records = [aws_lb.lb.dns_name]
-}
-
-resource "aws_lb_target_group" "tg" {
-  name     = "${var.stack_name}-tg"
-  port     = "80"
-  protocol = "HTTP"
+resource "aws_lb_target_group" "tg-443" {
+  name     = "${var.stack_name}-tg-443"
+  port     = "443"
+  protocol = "TLS"
   vpc_id   = var.network_vpc_id
   tags     = local.default_tags
 
   health_check {
     path                = "/"
-    protocol            = "HTTP"
-    healthy_threshold   = "2"
+    protocol            = "HTTPS"
+    healthy_threshold   = "3"
     unhealthy_threshold = "3"
-    timeout             = "5"
     interval            = "10"
-    matcher             = "200,204"
   }
 }
 
-resource "aws_lb_target_group" "openvpn-1194" {
-  name     = "${var.stack_name}-ovpn-tg-1194"
+resource "aws_lb_target_group" "tg-1194" {
+  name     = "${var.stack_name}-tg-1194"
   port     = "1194"
   protocol = "UDP"
   vpc_id   = var.network_vpc_id
   tags     = local.default_tags
 }
 
-resource "aws_lb_target_group" "openvpn-943" {
-  name     = "${var.stack_name}-ovpn-tg-943"
+resource "aws_lb_target_group" "tg-943" {
+  name     = "${var.stack_name}-tg-943"
   port     = "943"
   protocol = "TCP"
   vpc_id   = var.network_vpc_id
   tags     = local.default_tags
 }
+
 
