@@ -1,3 +1,8 @@
+resource "random_integer" "subnet_idx" {
+  min = 0
+  max = (length(var.openvpn_subnet_ids) - 1)
+}
+
 # CREATE OPENVPN ACCESS SERVER INSTANCE
 
 resource "aws_launch_configuration" "openvpn" {
@@ -11,7 +16,7 @@ resource "aws_launch_configuration" "openvpn" {
 
   security_groups = (var.custom_security_groups == [] ? [aws_security_group.openvpn.id] : coalescelist(var.custom_security_groups, [aws_security_group.openvpn.id]))
 
-  associate_public_ip_address = false
+  associate_public_ip_address = true
 
   lifecycle {
     create_before_destroy = true
@@ -21,7 +26,7 @@ resource "aws_launch_configuration" "openvpn" {
 resource "aws_autoscaling_group" "openvpn" {
   max_size             = 1
   min_size             = 1
-  vpc_zone_identifier  = var.openvpn_subnet_ids
+  vpc_zone_identifier  = [var.openvpn_subnet_ids[random_integer.subnet_idx.result]]
   launch_configuration = aws_launch_configuration.openvpn.name
   health_check_type    = "EC2"
   target_group_arns    = [aws_lb_target_group.tg-443.arn, aws_lb_target_group.tg-943.arn, aws_lb_target_group.tg-1194.arn]
@@ -87,7 +92,7 @@ resource "aws_acm_certificate" "ovpn_aws_cert" {
 resource "aws_lb" "lb" {
   name                   = var.stack_name
   load_balancer_type     = "network"
-  subnets                = var.openvpn_subnet_ids
+  subnets                = [var.openvpn_subnet_ids[random_integer.subnet_idx.result]]
   tags                   = local.default_tags
 }
 
