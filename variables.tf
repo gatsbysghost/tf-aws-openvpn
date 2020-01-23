@@ -10,6 +10,10 @@ variable "ovpn_as_password" {
   description = "Admin password for OpenVPN Access Server"
 }
 
+variable "ovpn_license_key" {
+  description = "License key for OpenVPN Access Server"
+}
+
 # NETWORK VARIABLES
 variable "network_vpc_id" {
   type = string
