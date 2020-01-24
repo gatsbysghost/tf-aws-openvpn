@@ -55,6 +55,10 @@ variable "openvpn_public_dns" {
   type = string
 }
 
+variable "private_subnet" {
+  description = "CIDR for the private subnet to which access should be granted for connected clients"
+  type = string
+}
 
 ###############################################################################
 ### OPENVPN USER DATA

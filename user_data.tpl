@@ -15,7 +15,7 @@ license=${license_key}
 reroute_gw=${reroute_gw}
 reroute_dns=${reroute_dns}
 use_google_auth=${use_google_auth}
-
+private_subnet=${private_subnet}
 
 --===============BOUNDARY==
 MIME-Version: 1.0
@@ -91,6 +91,9 @@ if [ ${use_google_auth} == 1 ]; then
   # USE GOOGLE AUTHENTICATOR
   /usr/local/openvpn_as/scripts/sacli --key "vpn.server.google_auth.enable" --value "true" ConfigPut
 fi
+
+echo "ADD PRIVATE SUBNET ACL"
+/usr/local/openvpn_as/scripts/sacli --key "vpn.server.routing.private_network.0" --value "${private_subnet}" ConfigPut
 
 echo "--> RESTART OPENVPN ACCESS SERVER TO SAVE AND APPLY CHANGES"
 
