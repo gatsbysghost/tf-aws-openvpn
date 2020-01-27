@@ -32,16 +32,3 @@ resource "aws_ssm_parameter" "ovpn_as_password" {
     Application           = "OpenVPN Access Server"
   }
 }
-
-resource "aws_ssm_parameter" "ovpn_license_key" {
-  name      = "${local.secret_prefix}/default/openvpn/license_key"
-  type      = "SecureString"
-  value     = var.ovpn_license_key
-  overwrite = "true"
-
-  tags = {
-    Environment           = var.environment
-    "terraform.workspace" = terraform.workspace
-    Application           = "OpenVPN Access Server"
-  }
-}
