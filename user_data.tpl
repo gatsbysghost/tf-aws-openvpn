@@ -92,10 +92,14 @@ if [ ${use_google_auth} == 1 ]; then
   /usr/local/openvpn_as/scripts/sacli --key "vpn.server.google_auth.enable" --value "true" ConfigPut
 fi
 
+# Rotate openvpn logs in /var/log after 1MB of them are created
+sudo echo "LOG_ROTATE_LENGTH=1000000" >> /usr/local/openvpn_as/etc/as.conf
+
 echo "--> RESTART OPENVPN ACCESS SERVER TO SAVE AND APPLY CHANGES"
 
 # RESTART OPENVPN ACCESS SERVER TO SAVE AND APPLY CONFIGURATION CHANGES
 /usr/local/openvpn_as/scripts/sacli start
 
+echo "0 4 * * * rm /var/log/openvpnas.log.{15..4000} >/dev/null 2>&1" >> /etc/crontab
 
 --===============BOUNDARY==
