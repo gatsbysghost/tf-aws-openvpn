@@ -95,10 +95,15 @@ fi
 echo "ADD PRIVATE SUBNET ACL"
 /usr/local/openvpn_as/scripts/sacli --key "vpn.server.routing.private_network.0" --value "${private_subnet}" ConfigPut
 
+# Limit OpenVPN logs to 1MB per file
+sudo echo "LOG_ROTATE_LENGTH=1000000" >> /usr/local/openvpn_as/etc/as.conf
+
 echo "--> RESTART OPENVPN ACCESS SERVER TO SAVE AND APPLY CHANGES"
 
 # RESTART OPENVPN ACCESS SERVER TO SAVE AND APPLY CONFIGURATION CHANGES
 /usr/local/openvpn_as/scripts/sacli start
 
+# Rotate OpenVPN logs before they fill up the disk
+sudo echo "0 4 * * * rm /var/log/openvpnas.log.{15..4000} >/dev/null 2>&1" >> /etc/crontab
 
 --===============BOUNDARY==
