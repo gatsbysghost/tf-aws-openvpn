@@ -1,5 +1,5 @@
 module "naming" {
-  source      = "../ats-naming"
+  source      = "../../pci/ats-naming"
   environment = var.environment
 }
 
