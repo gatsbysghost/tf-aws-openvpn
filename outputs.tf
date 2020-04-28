@@ -10,14 +10,6 @@
 //  value = aws_instance.openvpn.subnet_id
 //}
 //
-//output "private_dns" {
-//  value = aws_instance.openvpn.private_dns
-//}
-//
-//output "private_ip" {
-//  value = aws_instance.openvpn.private_p
-//}
-//
 //output "public_ip" {
 //  value = local.public_ip
 //}

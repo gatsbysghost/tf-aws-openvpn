@@ -16,6 +16,11 @@ variable "network_vpc_id" {
 }
 
 # OPENVPN INSTANCE VARIABLES
+variable "cert_domain_name" {
+  description = "Domain name used to instantiate TLS Certificate"
+  type = string
+}
+
 variable "stack_name" {
   default = "openvpn"
 }
@@ -33,7 +38,7 @@ variable "openvpn_key_name" {
   type = string
 }
 
-variable "openvpn_subnet_id" {
+variable "openvpn_subnet_ids" {
   description = "List of subnet IDs"
   type        = list(string)
 }
@@ -46,11 +51,8 @@ variable "openvpn_public_dns" {
   type = string
 }
 
-variable "openvpn_route53_private_zone_id" {
-  type = string
-}
-
-variable "openvpn_private_dns" {
+variable "private_subnet" {
+  description = "CIDR for the private subnet to which access should be granted for connected clients"
   type = string
 }
 
